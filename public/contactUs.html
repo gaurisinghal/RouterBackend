@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        <!--Linkage of CSS sheets-->
+        <link rel="stylesheet" href="https://static2.sharepointonline.com/files/fabric/office-ui-fabric-core/11.0.0/css/fabric.min.css" />
+
+        <!--Link of Main open Rainbow files-->
+        <script src="//cdnjs.cloudflare.com/ajax/libs/es5-shim/4.5.9/es5-shim.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/es6-promise/4.0.5/es6-promise.min.js"></script>
+        <script src="//code.jquery.com/jquery-2.1.3.min.js"></script>
+        <script src="//cdn.jsdelivr.net/momentjs/2.15.1/moment-with-locales.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.5/angular.min.js"></script>
+        <script src="./vendors-sdk.min.js"></script>
+        <script src="./rainbow-sdk.min.js"></script>
+
+        <script>
+            function iPhonelogInFunction(){
+                var catdata = 'iphone,login';
+                localStorage.setItem('category',catdata);
+                window.location.replace('/chat.html');
+            }
+
+            function iPhoneCrashFunction(){
+                var catdata = 'iphone,crash';
+                localStorage.setItem('category',catdata);
+                window.location.replace('/chat.html');
+            }
+
+            function MacBookLoginFunction(){
+                var catdata = 'macbook,login';
+                localStorage.setItem('category',catdata);
+                window.location.replace('/chat.html');
+            }
+        </script>
+        <title>Contact Us - Contoso Support</title>
+    </head>
+    <body class="ms-Fabric" dir="ltr" style="margin: 0px;">
+        <!--header-->
+        <div class="ms-Grid-row" dir="ltr" style="background-color: black; top: 0px; bottom: 0px;">
+            <div class="ms-Grid-col ms-sm12 ms-md12 ms-lg12" style="padding-top: 3px; margin-bottom: 8px; text-align: center;">
+                <span style="height: fit-content; font-size: 24px; color: white;">
+                    <i class="ms-Icon ms-Icon--DelveAnalyticsLogo" aria-hidden="true""></i>
+                    <b>Contoso Support</b>
+                </span>
+            </div>
+        </div>
+
+        <!--Intro-->
+        <div class="ms-Grid-row" dir="ltr" style="top: 0px; bottom: 0px; background-image: url(../static/indexSupportBg.jpg); background-size: contain; height: 580px; background-position: center;">
+            <div class="ms-Grid-col ms-sm12 ms-md12 ms-lg12" style="text-align: center; padding-top: 180px; color: white; font-size: 60px; text-shadow: 0px 0px 7px #000000;">
+                <!--Intro text-->
+                <span>
+                    Thank you for choosing Contoso Support.
+                </span>
+            </div>
+            <div class="ms-Grid-col ms-sm12 ms-md12 ms-lg12" style="text-align: center; padding-top: 20px; color: white; font-size: 20px; text-shadow: 0px 0px 7px #000000;">
+                <!--Intro text-->
+                <span>
+                    Check below for our support 7/24 options.
+                </span>
+            </div>
+        </div>
+
+        <!--Choice of support-->
+        <!--Chat with us-->
+        <div class="ms-Grid-row" dir="ltr" style="text-align: center;">
+            <div class="ms-Grid-col ms-sm0 ms-md2 ms-lg3">
+
+            </div>
+            <!--Main content provider-->
+            <!-- <a href="chat.html"> -->
+                <div class="ms-Grid-col ms-sm12 ms-md8 ms-lg6" style="font-size: 30px; height: 80px; padding-top: 20px; color: black; text-shadow: 0px 0px 4px #7f7f7f">
+                    Chat with us
+                    <button onclick="iPhonelogInFunction()">Iphone: logging in</button><br>
+                  <button onclick="iPhoneCrashFunction()">Iphone: crash</button><br>
+                 <button onclick="MacBookLoginFunction()">Macbook: logging in</button>
+                </div>
+            <!-- </a> -->
+
+            <div class="ms-Grid-col ms-sm0 ms-md2 ms-lg3">
+
+            </div>
+        </div>
+
+        <!--Voice call us-->
+        <div class="ms-Grid-row" dir="ltr" style="text-align: center;">
+            <div class="ms-Grid-col ms-sm0 ms-md2 ms-lg3">
+
+            </div>
+            <!--Main content provider-->
+            <a href="call.html">
+                <div class="ms-Grid-col ms-sm12 ms-md8 ms-lg6" style="font-size: 30px; height: 80px; padding-top: 20px; color: black; text-shadow: 0px 0px 4px #7f7f7f">
+                    Call us
+                </div>
+            </a>
+            
+            <div class="ms-Grid-col ms-sm0 ms-md2 ms-lg3">
+
+            </div>
+        </div>
+
+        <!--Email us-->
+        <div class="ms-Grid-row" dir="ltr" style="text-align: center;">
+            <div class="ms-Grid-col ms-sm0 ms-md2 ms-lg3">
+
+            </div>
+            <!--Main content provider-->
+            <a href="email.html">
+                <div class="ms-Grid-col ms-sm12 ms-md8 ms-lg6" style="font-size: 30px; height: 80px; padding-top: 20px; color: black; text-shadow: 0px 0px 4px #7f7f7f">
+                    Email us
+                </div>
+            </a>
+            
+            <div class="ms-Grid-col ms-sm0 ms-md2 ms-lg3">
+
+            </div>
+        </div>
+
+        <!--footer-->
+        <div class="ms-Grid-row" dir="ltr" style="font-size: 10px; color: #7f7f7f; background-color: #efefef; text-align: center; margin: 0px;">
+            <p>
+                Contoso Corporation 2020
+            </p>
+            <p>
+                Somapah Road
+            </p>
+            <p>
+                All rights reserved
+            </p>
+        </div>
+
+    </body>
+</html>

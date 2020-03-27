@@ -1,0 +1,53 @@
+{
+    "rainbow": {
+        //        "host": "official",                      // Can be "sandbox" (developer platform), "official" or any other hostname when using dedicated AIO
+                "host": "sandbox"                      // Can be "sandbox" (developer platform), "official" or any other hostname when using dedicated AIO
+    },
+    "credentials": {
+        "login": "joey_yeo@mymail.sutd.edu.sg",  // The Rainbow email account to use
+        "password": "OFLl[8d(Py~8"   // The Rainbow associated password to use
+    },
+    // Application identifier OFLl[8d(Py~8  JoJoSUTD3846!
+
+    "application": {
+        "appID": "b6f834105aed11eabf7e77d14e87b936", // Need to create your own application on the hub.openrainbow.com platform
+        "appSecret": "LzUG5l0iM9YproZTONXSkwnRmeAl7cEWrxSyg3ziSHlPpOVGVA8YY5lC2R6B0IwT"
+    },
+    // */
+
+    // Proxy configuration
+    /*"proxy": {
+        "host": "xx.xx.xx.xx",
+        "port": 8080,
+        "protocol": "http"
+    }, // */
+
+    // Logs options
+    "logs": {
+        "enableConsoleLogs": true,              // Default: true
+        "enableFileLogs": false,                // Default: false
+        "color": true,
+        "level": "info",
+        "customLabel": "StarterKit",
+        "system-dev": {
+            "internals": false,
+            "http": false
+        }, // */
+        "file": {
+            "path": "c:/temp/",     // Default path used
+            "customFileName": "R-SDK-Node-StarterKit",
+            //"level": 'info',                    // Default log level used
+            "zippedArchive" : false
+        }
+    },
+    // IM options
+    "im": {
+        "sendReadReceipt": false,   // True to send the 'read' receipt automatically
+        "messageMaxLength": 1024,
+        "sendMessageToConnectedUser": true,
+        "conversationsRetrievedFormat": "small",
+        "storeMessages": false,
+        "nbMaxConversations": 15,
+        "rateLimitPerHour": 1000
+    }
+}
