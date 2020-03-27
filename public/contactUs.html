@@ -18,22 +18,44 @@
         <script src="./rainbow-sdk.min.js"></script>
 
         <script>
+            function checkQueueTime(data){
+                var xhttp = new XMLHttpRequest();
+                xhttp.open('POST', 'checkQueue', true);
+                xhttp.setRequestHeader('Content-Type','application/json');
+                xhttp.send(JSON.stringify(data));
+                xhttp.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+                        var result = JSON.parse(this.responseText);
+                        var time = result.time;
+                        if (time == 'Ok'){
+                            var catdata = data.problem;
+                            localStorage.setItem('category',catdata);
+                            window.location.replace('/chat.html');
+                        }
+                        else{
+                            alert("Sorry! Queue for "+data.problem+" chat support is currently too long. Please try again later.");
+                        }
+                        
+                    }else if(this.status != 200){
+                        console.log("Wrong when fetching data from api");
+                    }
+                };
+                //window.location.replace('/chat.html');
+            }
+
             function iPhonelogInFunction(){
-                var catdata = 'iphone,login';
-                localStorage.setItem('category',catdata);
-                window.location.replace('/chat.html');
+                var data={'problem': 'iphone,login'};
+                checkQueueTime(data);
             }
 
             function iPhoneCrashFunction(){
-                var catdata = 'iphone,crash';
-                localStorage.setItem('category',catdata);
-                window.location.replace('/chat.html');
+                var data={'problem': 'iphone,crash'};
+                checkQueueTime(data);
             }
 
             function MacBookLoginFunction(){
-                var catdata = 'macbook,login';
-                localStorage.setItem('category',catdata);
-                window.location.replace('/chat.html');
+                var data={'problem': 'macbook,login'};
+                checkQueueTime(data);
             }
         </script>
         <title>Contact Us - Contoso Support</title>

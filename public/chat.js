@@ -45,6 +45,7 @@ $(function() {
         xhttp.open('POST', 'endChat', true);
         xhttp.setRequestHeader('Content-Type','application/json');
         xhttp.send(JSON.stringify(data));
+        window.location.replace('/');
     });
 
     // Execute a function when the user releases a key on the keyboard
@@ -65,7 +66,9 @@ $(function() {
     var onReady = function onReady() {
         // Use of ajax to fetch result
         console.log("Fetching result");
-         var data=localStorage.getItem('category');
+
+        // send category over and get back credentials
+        var data=localStorage.getItem('category');
         var dataTosend={"cat": data};
         var xhttp = new XMLHttpRequest();
         xhttp.open('POST', 'guestLogin', true);
