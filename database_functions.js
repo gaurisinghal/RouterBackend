@@ -1,12 +1,24 @@
 const {pool, mysql} = require('./database_config');
 
-module.exports.add_to_queue = function add_to_queue(custId, skill){
+/* module.exports.map_skill = function map_skill(problem){
+
+} */
+
+module.exports.add_to_queue = function add_to_queue(custId, category, skill){
     //select agentid, qlength from agents_iphone where skill =1 
     //insert into iphone_queues (agentid, position, custid) values(slected_agentid, qlength, custid)
     //select returns an array containing each row as an object
-    let selectQuery = 'SELECT AgentId, QueueLength from agents_iphone where ?? =1';
-    let query = mysql.format(selectQuery,[skill]);
-    pool.query(query, (err, result)=>{
+    let selectQuery = 'SELECT AgentId, QueueLength from ?? where ?? =1';
+    if(category == 'iphone'){
+        selectQuery = mysql.format(selectQuery,["agents_iphone", skill]);
+    }
+    else if(category == 'macbook'){
+        selectQuery = mysql.format(selectQuery,["agents_mac", skill]);
+    }
+    // else if(category == "ipad"){
+    //     selectQuery = mysql.format(selectQuery,["agents_ipad",skill]);
+    // }
+    pool.query(selectQuery, (err, result)=>{
         if (err) console.log(err);
         for ( i=0; i<result.length; i++){
             let id = String(result[i].AgentId);
@@ -74,26 +86,17 @@ module.exports.toggle_availability = function toggle_availability(changeTo, agen
     });
 }
 
-module.exports.add_engagement = function toggle_engaged(agentId){
-    //if changeTo == "busy", checks if agent is free and then makes them busy
-    //if changeTo == "free", checks if agents is busy and then makes them free
-    let selectQuery = mysql.format('SELECT AgentId, Engaged FROM agents_iphone WHERE agent_bubbleid = ?',[bubbleId]);
+module.exports.add_engagement = function add_engagement(agentId, bubbleId){
+    let selectQuery = mysql.format('SELECT Available, Engaged FROM agents_iphone WHERE AgentId = ?',[agentId]);
     pool.query(selectQuery,(err,result) => {
         if(err) console.log(err);
         else{
-            let updateQuery = "UPDATE agents_iphone SET Engaged = ? WHERE AgentId = ?";
-            if(result[0].Engaged ==0 && changeTo == "busy"){
-                updateQuery = mysql.format(updateQuery, [1,result[0].AgentId]);
+            let updateQuery = "UPDATE agents_iphone SET Engaged = 1 , agent_bubbleid = ? WHERE AgentId = ?";
+            if(result[0].Engaged ==0 && result[0].Available==1){
+                updateQuery = mysql.format(updateQuery, [bubbleId,agentId]);
                 pool.query(updateQuery, (err,result1)=>{
                     if(err) console.log(err);
-                    else console.log("Agent status updated to" + changeTo);
-                });
-            } 
-            else if(result[0].Engaged == 1 && changeTo == "free"){
-                updateQuery = mysql.format(updateQuery, [0,result[0].AgentId]);
-                pool.query(updateQuery, (err,result2)=>{
-                    if(err) console.log(err);
-                    else console.log("Agent status updated to" + changeTo);
+                    else console.log("Agent status updated to engaged with bubbleId"+ bubbleId);
                 });
             }
         }
@@ -102,7 +105,7 @@ module.exports.add_engagement = function toggle_engaged(agentId){
 
 module.exports.remove_engagement = function remove_engagement(bubbleId){
     //functions changes engaged as well as removes the bubble id from the database
-    //the agent bubble id will reflect NULL even if the agent is stilll in that bubble
+    //the agent bubble id will reflect NULL even if the agent is still in that bubble
     let selectQuery = mysql.format('SELECT AgentId, Engaged FROM agents_iphone WHERE agent_bubbleid = ?',[bubbleId]);
     pool.query(selectQuery,(err,result) => {
         if(err) console.log(err);
@@ -112,7 +115,7 @@ module.exports.remove_engagement = function remove_engagement(bubbleId){
                 updateQuery = mysql.format(updateQuery, [result[0].AgentId]);
                 pool.query(updateQuery, (err,result1)=>{
                     if(err) console.log(err);
-                    else console.log("Agent status updated to not engaged");
+                    else console.log("Agent status updated to not engaged and removed from bubble"+bubbleId);
                 });
             } 
         }
