@@ -43,18 +43,33 @@
                 //window.location.replace('/chat.html');
             }
 
-            function iPhonelogInFunction(){
-                var data={'problem': 'iphone,login'};
+            function iPhoneBatteryFunction(){
+                var data={'problem': 'iphone,battery_issues'};
+                checkQueueTime(data);
+            }
+
+            function iPhoneNetworkFunction(){
+                var data={'problem': 'iphone,network_issues'};
                 checkQueueTime(data);
             }
 
             function iPhoneCrashFunction(){
-                var data={'problem': 'iphone,crash'};
+                var data={'problem': 'iphone,crash_issues'};
                 checkQueueTime(data);
             }
 
-            function MacBookLoginFunction(){
-                var data={'problem': 'macbook,login'};
+            function MacBookScreenFunction(){
+                var data={'problem': 'macbook,screen_issues'};
+                checkQueueTime(data);
+            }
+
+            function MacBookBootingFunction(){
+                var data={'problem': 'macbook,booting_issues'};
+                checkQueueTime(data);
+            }
+
+            function MacBookUpdateFunction(){
+                var data={'problem': 'macbook,update_issues'};
                 checkQueueTime(data);
             }
         </script>
@@ -97,9 +112,12 @@
             <!-- <a href="chat.html"> -->
                 <div class="ms-Grid-col ms-sm12 ms-md8 ms-lg6" style="font-size: 30px; height: 80px; padding-top: 20px; color: black; text-shadow: 0px 0px 4px #7f7f7f">
                     Chat with us
-                    <button onclick="iPhonelogInFunction()">Iphone: logging in</button><br>
-                  <button onclick="iPhoneCrashFunction()">Iphone: crash</button><br>
-                 <button onclick="MacBookLoginFunction()">Macbook: logging in</button>
+                    <button onclick="iPhoneBatteryFunction()">Iphone: Battery issue</button><br>
+                  <button onclick="iPhoneCrashFunction()">Iphone: Crash issue</button><br>
+                  <button onclick="iPhoneNetworkFunction()">Iphone: Network issue</button><br>
+                  <button onclick="MacBookScreenFunction()">Macbook: Screen blackout issue</button><br>
+                  <button onclick="MacBookBootingFunction()">Macbook: Booting up issue</button><br>
+                 <button onclick="MacBookUpdateFunction()">Macbook: System Update issue</button>
                 </div>
             <!-- </a> -->
 
