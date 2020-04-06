@@ -137,6 +137,31 @@ rainbowSDK.start().then(() => {
         console.log("bubbleid: "+rbwbubbleid);
         res.end();
     });
+
+    app.post('/checkQueue', function(req, res){
+        var cat = req.body.problem;
+        var catArray = cat.split(',');
+        console.log("category: "+cat);
+        var category = catArray[0];
+        var skill = catArray[1];
+        console.log("Checking Queue for category: "+category+"   skill: "+skill);
+
+        // G: check the queue for category
+        // if no space = time = 'Long'
+        // if got space = time = 'Ok'
+        var time;
+        // FOR TESTING ------------------------------------ 
+        if(category == 'iphone' && skill == 'login'){
+            // no space
+            time = 'Long';
+        }else{
+            time = 'Ok';
+        }
+        // FOR TESTING ------------------------------------
+        var dataToSend = {'time':time}
+        res.end(JSON.stringify(dataToSend));
+    });
+
     app.post('/guestLogin', async function(req, res){
         var cat = req.body.cat;
         var catArray = cat.split(',');
