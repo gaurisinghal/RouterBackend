@@ -150,8 +150,8 @@ rainbowSDK.start().then(() => {
         // if no space = time = 'Long'
         // if got space = time = 'Ok'
         var time;
-        // FOR TESTING ------------------------------------ 
-        if(category == 'iphone' && skill == 'login'){
+        // FOR TESTING ------------------------------------ iphone,battery_issues
+        if(category == 'iphone' && skill == 'battery_issues'){
             // no space
             time = 'Long';
         }else{
