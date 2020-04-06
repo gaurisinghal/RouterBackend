@@ -228,4 +228,8 @@ rainbowSDK.start().then(() => {
         var port = server.address().port
         console.log("Example app listening at http://%s:%s", host, port)
      });
+
+    https.createServer(options, app).listen(8086, function () {
+        console.log('Https server listening on port ' + 8086);
+    });
 });
