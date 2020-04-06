@@ -8,6 +8,10 @@ var app = express();
 var bodyParser = require('body-parser');
 var path = require('path');
 
+// For ssl link
+var https = require('https');
+var fs = require('fs');
+
 // Load the SDK
 let RainbowSDK = require("rainbow-node-sdk");
 
@@ -16,6 +20,22 @@ app.use('/static', express.static('static'));
 
 // Define your configuration
 let options = {
+
+    // SSL options. DO NOT MODIFY
+    // Passphrase for certs: foobar
+    // Server private key
+    key: fs.readFileSync('./ssl/server-key.pem'),
+    // Cert authority
+    ca: [fs.readFileSync('./ssl/ca-cert.pem')],
+    // Server cert
+    cert: fs.readFileSync('./ssl/server-cert.pem'),
+
+    // If you want to use pfx files, just uncomment the code below and comment the code above
+    /*
+    pfx:fs.readFileSync('./ssl/server.pfx'),
+	passphrase:'foobar'
+    */
+
     rainbow: {
         host: "sandbox"
     },
