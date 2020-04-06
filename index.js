@@ -106,6 +106,10 @@ rainbowSDK.start().then(() => {
         res.sendFile(path.join(__dirname+ "/public/chat.html"));
     })
 
+    app.get('/chatQueueTooLong.html', function(req, res){
+        res.sendFile(path.join(__dirname+ "/public/chatQueueTooLong.html"));
+    })
+
     app.get('/contactUs.html', function(req, res){
         res.sendFile(path.join(__dirname + "/public/contactUs.html"));
     })
