@@ -33,7 +33,8 @@
                             window.location.replace('/chat.html');
                         }
                         else{
-                            alert("Sorry! Queue for "+data.problem+" chat support is currently too long. Please try again later.");
+                            window.location.replace('/chatQueueTooLong.html');
+                            //alert("Sorry! Queue for "+data.problem+" chat support is currently too long. Please try again later.");
                         }
                         
                     }else if(this.status != 200){

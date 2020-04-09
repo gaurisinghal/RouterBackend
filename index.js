@@ -8,6 +8,10 @@ var app = express();
 var bodyParser = require('body-parser');
 var path = require('path');
 
+// For ssl link
+var https = require('https');
+var fs = require('fs');
+
 // Load the SDK
 let RainbowSDK = require("rainbow-node-sdk");
 
@@ -16,6 +20,22 @@ app.use('/static', express.static('static'));
 
 // Define your configuration
 let options = {
+
+    // SSL options. DO NOT MODIFY
+    // Passphrase for certs: foobar
+    // Server private key
+    key: fs.readFileSync('./ssl/server-key.pem'),
+    // Cert authority
+    ca: [fs.readFileSync('./ssl/ca-cert.pem')],
+    // Server cert
+    cert: fs.readFileSync('./ssl/server-cert.pem'),
+
+    // If you want to use pfx files, just uncomment the code below and comment the code above
+    /*
+    pfx:fs.readFileSync('./ssl/server.pfx'),
+	passphrase:'foobar'
+    */
+
     rainbow: {
         host: "sandbox"
     },
@@ -86,6 +106,10 @@ rainbowSDK.start().then(() => {
         res.sendFile(path.join(__dirname+ "/public/chat.html"));
     })
 
+    app.get('/chatQueueTooLong.html', function(req, res){
+        res.sendFile(path.join(__dirname+ "/public/chatQueueTooLong.html"));
+    })
+
     app.get('/contactUs.html', function(req, res){
         res.sendFile(path.join(__dirname + "/public/contactUs.html"));
     })
@@ -148,6 +172,31 @@ rainbowSDK.start().then(() => {
         console.log("ENDED CHAT at bubbleid: "+rbwbubbleid);
         res.end();
     });
+
+    app.post('/checkQueue', function(req, res){
+        var cat = req.body.problem;
+        var catArray = cat.split(',');
+        console.log("category: "+cat);
+        var category = catArray[0];
+        var skill = catArray[1];
+        console.log("Checking Queue for category: "+category+"   skill: "+skill);
+
+        // G: check the queue for category
+        // if no space = time = 'Long'
+        // if got space = time = 'Ok'
+        var time;
+        // FOR TESTING ------------------------------------ iphone,battery_issues
+        if(category == 'iphone' && skill == 'battery_issues'){
+            // no space
+            time = 'Long';
+        }else{
+            time = 'Ok';
+        }
+        // FOR TESTING ------------------------------------
+        var dataToSend = {'time':time}
+        res.end(JSON.stringify(dataToSend));
+    });
+
     app.post('/guestLogin', async function(req, res){
         var cat = req.body.cat;
         var catArray = cat.split(',');
@@ -246,4 +295,8 @@ rainbowSDK.start().then(() => {
         var port = server.address().port
         console.log("Example app listening at http://%s:%s", host, port)
      });
+
+    https.createServer(options, app).listen(8086, function () {
+        console.log('Https server listening on port ' + 8086);
+    });
 });

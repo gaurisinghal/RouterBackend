@@ -1,0 +1,26 @@
+#container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+#statement {
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    height: 700px;
+    display: inherit;
+}
+#chatWindow {
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    height: 700px;
+    display: none;
+}
+#callWindow {
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    height: 700px;
+    display: none;
+}

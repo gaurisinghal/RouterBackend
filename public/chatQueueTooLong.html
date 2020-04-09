@@ -1,14 +1,13 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Call us</title>
+        <title>Chat with us</title>
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
 
         <!--Linkage of CSS sheets-->
         <link rel="stylesheet" href="https://static2.sharepointonline.com/files/fabric/office-ui-fabric-core/11.0.0/css/fabric.min.css" />
-        <link rel="stylesheet" href="/css/support.css" />
 
         <!--Link of Main open Rainbow files-->
         <script src="//cdnjs.cloudflare.com/ajax/libs/es5-shim/4.5.9/es5-shim.min.js"></script>
@@ -16,11 +15,15 @@
         <script src="//code.jquery.com/jquery-2.1.3.min.js"></script>
         <script src="//cdn.jsdelivr.net/momentjs/2.15.1/moment-with-locales.min.js"></script>
         <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.5/angular.min.js"></script>
-        <script src="./vendors-sdk.min.js"></script>
-        <script src="./rainbow-sdk.min.js"></script>
+        <script src="/vendors-sdk.min.js"></script>
+        <script src="/rainbow-sdk.min.js"></script>
 
-        <!--Link of call script-->
-        <script src="/call.js"></script>
+        <script>
+            function emailButtonClicked(){
+                window.location.replace('/email.html');
+            }
+        </script>
+
     </head>
     <body class="ms-Fabric" dir="ltr" style="margin: 0px;">
         <!--header-->
@@ -33,51 +36,48 @@
             </div>
         </div>
 
-        <!--State-->
+        <!--Choice of problem-->
         <div class="ms-Grid-row" dir="ltr">
-            <div class="ms-Grid-col ms-sm12 ms-md12 ms-lg12" dir="ltr" style="font-size: 30px;">
-                <p id="status">
-                    Finding/Waiting for an Agent
-                </p>
-            </div>
+            <p id="status">
+                Chat Unavailable
+            </p>
         </div>
 
         <!--Chat window-->
         <div class="ms-Grid-row" dir="ltr" style="text-align: center;">
             <div class="ms-Grid-col ms-sm0 ms-md2 ms-lg2" dir="ltr" style="background-color: bisque; height: 700px"></div>
+            <!--Main container for chat content-->
+            <div class="ms-Grid-col ms-sm12 ms-md8 ms-lg8" dir="ltr" style="height: 700px;">
+                <!--Chat content-->
+                <div id="sentMessages" class="ms-Grid-row" style="height: 74%; background-color: aliceblue; overflow: auto;">
+                    <!-- example message-->
+                    <div class="ms-Grid-row">
+                        <p style="margin-left: 20px; margin-right: 20px; margin-top:10px; padding:8px; background-color: #efefef; text-align: left;">
+                            <i class="ms-Icon ms-Icon--DelveAnalyticsLogo" aria-hidden="true""></i>
+                            Sorry, our agents are too busy at the moment. Please try again later.
+                        </p>
+                    </div>
+                    <!--End of example message-->
 
-            <div class="ms-Grid-col ms-sm12 ms-md8 ms-lg8" dir="ltr">
-                <!--Problem statement-->
-                <div id="statement" dir="ltr" style="text-align: left; overflow: auto; padding-left: 20px;">
-                    <h1>Please tell us your problem:</h1>
-                    <p>
-                        <label for="product">What product are you facing issues with?</label>
-                        <select id="product">
-                            <option value="iConto">iConto</option>
-                            <option value="Consotosh">Consotosh</option>
-                            <option value="Contoso Phone">Contoso Phone</option>
-                        </select>
-                    </p>
-                    <p>
-                        <label for="problem">What kind of problem are you facing?</label>
-                        <select id="problem">
-                            <option value="Battery/Power">Battery/Power</option>
-                            <option value="Screen">Screen</option>
-                            <option value="Boot">Boot</option>
-                            <option value="Account">Account/Login</option>
-                        </select>
-                    </p>
-                    <p>
-                        <button id="submitProblem">Next</button>
-                    </p>
+                     <!-- example message-->
+                     <div class="ms-Grid-row">
+                        <p style="margin-left: 20px; margin-right: 20px; margin-top:10px; padding:8px; background-color: #efefef; text-align: left;">
+                            <i class="ms-Icon ms-Icon--SkypeMessage" aria-hidden="true"></i>
+                            <!--This is a very new message-->
+                        </p>
+                    </div>
+                    <!--End of example message-->
+                    
                 </div>
-
-                <!--Main container for chat content-->
-                <div id="callWindow" dir="ltr" style="text-align: center;">
-                    <img src="/agent.jpg" height="700px">
+                <!--Email button-->
+                <div class="ms-Grid-row" style="height: 26%; background-color: aquamarine;">
+                    <div class="ms-Grid-row" style="margin: 14px; background-color: white; height: 154px;">
+                        <button id="email" onclick="emailButtonClicked()" style="height: 100%; width: 100%; border: none;">
+                            Email instead
+                        </button>
+                    </div>
                 </div>
             </div>
-
             <div class="ms-Grid-col ms-sm0 ms-md2 ms-lg2" dir="ltr" style="background-color: bisque; height: 700px"></div>
         </div>
 
