@@ -27,7 +27,7 @@
                     if (this.readyState == 4 && this.status == 200) {
                         var result = JSON.parse(this.responseText);
                         var time = result.time;
-                        if (time == 'Ok'){
+                        if (time == "Ok"){
                             var catdata = data.problem;
                             localStorage.setItem('category',catdata);
                             window.location.replace('/chat.html');

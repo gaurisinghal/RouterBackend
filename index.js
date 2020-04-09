@@ -110,11 +110,42 @@ rainbowSDK.start().then(() => {
         res.sendFile(path.join(__dirname + "/public/chat.js"));
     })
 
+    app.post('/checkQueue', function(req, res){
+        var cat = req.body.problem;
+        var catArray = cat.split(',');
+        console.log("category: "+cat);
+        var category = catArray[0];
+        var skill = catArray[1];
+        console.log("Checking Queue for category: "+category+"   skill: "+skill);
+
+        // G: check the queue for category
+        var time = db.check_for_space(category);
+        console.log(time+ " right before checking");
+        // if no space = time = 'Long'
+        // if got space = time = 'Ok'
+
+        // FOR TESTING ------------------------------------ 
+        // if(category == 'iphone' && skill == 'login'){
+        //     // no space
+        //     time = 'Long';
+        // }else{
+        //     time = 'Ok';
+        // }
+        // FOR TESTING ------------------------------------
+        if(time == "Invalid"){
+            console.log("Invalid Category "+ category);
+        }
+        else{
+        var dataToSend = {'time':time}
+        res.end(JSON.stringify(dataToSend));
+        }
+    });
+
     app.post('/endChat', function(req, res){
         var rbwbubbleid = req.body.bubbleid;
         // G set engage of the agent in the bubble from 1 to 0
         db.remove_engagement(rbwbubbleid);
-        console.log("bubbleid: "+rbwbubbleid);
+        console.log("ENDED CHAT at bubbleid: "+rbwbubbleid);
         res.end();
     });
     app.post('/guestLogin', async function(req, res){
@@ -168,11 +199,47 @@ rainbowSDK.start().then(() => {
        
 
         var loginCred = {"Username": guestaccount.loginEmail, "Password": guestaccount.password, "BubbleId": bubbleId};
-        
+        // G: using the category AND SKILL: ADD bubbleId into respective queue FOR agents in that category and HAS THAT SKILL. 
+        // and add bubbleId to category queue
+
+        // DONE: all this should do is 1. add bubble with respective skill into db 
+        // 2. create guest account
+        // 3. add guest into bubble and guest stays in bubble and WAIT
+        // (the adding of agent into bubble should be done by the matching function)
         // returns the credentials for guest user account
+         // TEST function ONLY
+        var agent_id = await rainbowSDK.contacts.getContactById("5e60e5ddd8084c29e64eba90");
+        rainbowSDK.bubbles.inviteContactToBubble(agent_id, bubble, false, false, "").then(function(bubbleUpdated) {
+            logger.log("debug", "agent added into bubble");                
+        }).catch(function(err) {
+            // do something if the invitation failed (eg. bad reference to a buble)
+            logger.log("debug", "agent user invite failed");
+        });
+
+
         res.end(JSON.stringify(loginCred));
         
-    })
+    });
+
+    
+    // async Matching function (?eg ping to db every 10sec) NOTE THE ASYNC 
+    // checks engage status of every agent
+    //  if NOT engaged (0), get next in queue if not empty -> agentId and bubbleId - use
+    // -> uncomment this block comment
+    /* var agent = await rainbowSDK.contacts.getContactById(agentId); 
+    rainbowSDK.bubbles.getBubbleById(bubbleId).then(function(bubbleUpdated) {
+        logger.log("debug", "bubble object found");
+        // invite agent
+        rainbowSDK.bubbles.inviteContactToBubble(agent, bubbleUpdated, false, false, "").then(function(bubbleUpdated) {
+            // do something with the invite sent
+            logger.log("debug", "guest user has been added to bubble");
+        }).catch(function(err) {
+            // do something if the invitation failed (eg. bad reference to a bubble)
+            logger.log("debug", "guest user invite failed");
+        });
+    }); */
+    // then remove all of THIS bubbleId from other agents' queues and from category queue.
+    // SAVE this bubbleId until this specific agent EngagedBubble column
      
     var server = app.listen(8081, function () {
         var host = server.address().address

@@ -4,6 +4,41 @@ const {pool, mysql} = require('./database_config');
 
 } */
 
+var time = "Invalid";
+
+module.exports.check_for_space = function check_for_space(category){
+    console.log("control flow line10")
+    let query = "SELECT COUNT(*) as total from ??";
+    if(category == "iphone"){
+        pool.query(mysql.format(query,["iphone_request_buffer"]),(err, result)=>{
+            console.log(time);
+            if(err) {
+                console.log(err); 
+            }
+            else if (result[0].total < 10){
+                time = "Ok";
+                console.log(time + " when its set"); 
+            }
+            else {
+                time = "Long";
+            }
+            console.log(time+ " line 25");
+        });
+    }
+    else if(category == "macbook"){
+        time = pool.query(mysql.format(query,["mac_request_buffer"]),(err, result)=>{
+            if(err) {console.log(err); }
+            else if (result[0].total < 10){ time = "Ok";}
+            else {time = "Long";}    
+            return time;     
+        });
+    }
+    console.log("line 36");
+    console.log(time +" just before returning")
+    //else if category == ipad
+    //return String(time);
+}
+
 module.exports.add_to_queue = function add_to_queue(custId, category, skill){
     //select agentid, qlength from agents_iphone where skill =1 
     //insert into iphone_queues (agentid, position, custid) values(slected_agentid, qlength, custid)
@@ -11,9 +46,15 @@ module.exports.add_to_queue = function add_to_queue(custId, category, skill){
     let selectQuery = 'SELECT AgentId, QueueLength from ?? where ?? =1';
     if(category == 'iphone'){
         selectQuery = mysql.format(selectQuery,["agents_iphone", skill]);
+        pool.query(mysql.format("INSERT INTO iphone_request_buffer VALUES (?)",[custId]),(err, res)=>{
+            if(err) console.log(err);
+        });
     }
     else if(category == 'macbook'){
         selectQuery = mysql.format(selectQuery,["agents_mac", skill]);
+        pool.query(mysql.format("INSERT INTO mac_request_buffer VALUES (?)",[custId]),(err, res)=>{
+            if(err) console.log(err);
+        });
     }
     // else if(category == "ipad"){
     //     selectQuery = mysql.format(selectQuery,["agents_ipad",skill]);
