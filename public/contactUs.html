@@ -32,7 +32,7 @@
                             localStorage.setItem('category',catdata);
                             window.location.replace('/chat.html');
                         }
-                        else{
+                        else if (time == "Long"){
                             window.location.replace('/chatQueueTooLong.html');
                             //alert("Sorry! Queue for "+data.problem+" chat support is currently too long. Please try again later.");
                         }
@@ -41,7 +41,6 @@
                         console.log("Wrong when fetching data from api");
                     }
                 };
-                //window.location.replace('/chat.html');
             }
 
             function iPhoneBatteryFunction(){

@@ -1,47 +1,39 @@
-const {pool, mysql} = require('./database_config');
+const {pool, mysql, con} = require('./database_config');
+const util = require('util');
+const query = util.promisify(con.query).bind(con);
 
-/* module.exports.map_skill = function map_skill(problem){
-
-} */
-
-var time = "Invalid";
-
-module.exports.check_for_space = function check_for_space(category){
-    console.log("control flow line10")
-    let query = "SELECT COUNT(*) as total from ??";
+module.exports.check_for_space = async function check_for_space(category){
+    var time = "Invalid";
+    let query_text = "SELECT COUNT(*) as total from ??";
     if(category == "iphone"){
-        pool.query(mysql.format(query,["iphone_request_buffer"]),(err, result)=>{
-            console.log(time);
-            if(err) {
-                console.log(err); 
-            }
-            else if (result[0].total < 10){
+        try{
+            const result = await query(mysql.format(query_text,["iphone_request_buffer"]));
+            console.log(result);
+            if (result[0].total < 10){
                 time = "Ok";
-                console.log(time + " when its set"); 
             }
             else {
                 time = "Long";
             }
-            console.log(time+ " line 25");
-        });
+        }catch (err){
+            console.log(err);
+        }
+    } else if(category == "macbook"){
+        try{
+            const result = await query(mysql.format(query_text,["mac_request_buffer"]));
+            if (result[0].total < 10){ time = "Ok";}
+            else {time = "Long";}
+        }catch (err){
+            console.log(err);
+        }
     }
-    else if(category == "macbook"){
-        time = pool.query(mysql.format(query,["mac_request_buffer"]),(err, result)=>{
-            if(err) {console.log(err); }
-            else if (result[0].total < 10){ time = "Ok";}
-            else {time = "Long";}    
-            return time;     
-        });
-    }
-    console.log("line 36");
-    console.log(time +" just before returning")
     //else if category == ipad
-    //return String(time);
+    return String(time);
 }
 
 module.exports.add_to_queue = function add_to_queue(custId, category, skill){
-    //select agentid, qlength from agents_iphone where skill =1 
-    //insert into iphone_queues (agentid, position, custid) values(slected_agentid, qlength, custid)
+    //select agentid, qlength from agents_iphone/agents_mac where skill =1 
+    //insert into iphone_queues/mac_queues (agentid, position, custid) values(slected_agentid, qlength, custid)
     //select returns an array containing each row as an object
     let selectQuery = 'SELECT AgentId, QueueLength from ?? where ?? =1';
     if(category == 'iphone'){
@@ -64,11 +56,15 @@ module.exports.add_to_queue = function add_to_queue(custId, category, skill){
         for ( i=0; i<result.length; i++){
             let id = String(result[i].AgentId);
             let pos = String(result[i].QueueLength);
-            let insertQuery = 'INSERT INTO iphone_queues (`AgentId`, `Position`, `CustomerId`) VALUES(?,?,?)';
-            let newquery = mysql.format(insertQuery,[id,pos,custId]);
-            pool.query(newquery,(err,result)=>{
+            let insertQuery = 'INSERT INTO ?? (`AgentId`, `Position`, `CustomerId`) VALUES(?,?,?)';
+            if(category== "iphone"){
+                insertQuery = mysql.format(insertQuery,["iphone_queues", id,pos,custId]);
+            } else if (category == "macbook"){
+                insertQuery = mysql.format(insertQuery,["mac_queues", id,pos,custId]);
+            }
+            pool.query(insertQuery,(err,result)=>{
                 if (err) console.log(err);
-                else console.log("Inserted");
+                else console.log("Inserted into "+ category+" queue");
             });
         }
     }); 
@@ -128,10 +124,13 @@ module.exports.toggle_availability = function toggle_availability(changeTo, agen
 }
 
 module.exports.add_engagement = function add_engagement(agentId, bubbleId){
-    let selectQuery = mysql.format('SELECT Available, Engaged FROM agents_iphone WHERE AgentId = ?',[agentId]);
+    let selectQuery = mysql.format("SELECT Available, Engaged FROM agents_iphone WHERE AgentId = ?",[agentId]);
     pool.query(selectQuery,(err,result) => {
-        if(err) console.log(err);
+        if(err) {
+            console.log(err);
+        }
         else{
+            //console.log("can select");
             let updateQuery = "UPDATE agents_iphone SET Engaged = 1 , agent_bubbleid = ? WHERE AgentId = ?";
             if(result[0].Engaged ==0 && result[0].Available==1){
                 updateQuery = mysql.format(updateQuery, [bubbleId,agentId]);
@@ -147,6 +146,7 @@ module.exports.add_engagement = function add_engagement(agentId, bubbleId){
 module.exports.remove_engagement = function remove_engagement(bubbleId){
     //functions changes engaged as well as removes the bubble id from the database
     //the agent bubble id will reflect NULL even if the agent is still in that bubble
+    console.log("called");
     let selectQuery = mysql.format('SELECT AgentId, Engaged FROM agents_iphone WHERE agent_bubbleid = ?',[bubbleId]);
     pool.query(selectQuery,(err,result) => {
         if(err) console.log(err);
@@ -167,4 +167,4 @@ module.exports.remove_engagement = function remove_engagement(bubbleId){
 //add_to_queue('cust4','skill1');
 //add_to_queue('cust1', 'skill2');
 //add_to_queue('cust2', 'skill3');
-//delete_from_queue('cust2');
+//module.exports.check_for_space("iphone");

@@ -40,6 +40,15 @@ let options = {
         host: "sandbox"
     },
     credentials: {
+        login: "hongfang_chen@mymail.sutd.edu.sg", // To replace by your developer credendials
+        password: "Huc[>0IfAq*4" // To replace by your developer credentials
+    },
+    // Application identifier
+    application: {
+        appID: "0cf34a8079d411ea88b46f998ddae648",
+        appSecret: "0vHfyutBs1UHVGXKMC7iaSlszVjNmkwy9wpfDD7eOmxLizc3tbJiZdF5OSq1fcl1"
+    },
+    /* credentials: {
         login: "joey_yeo@mymail.sutd.edu.sg", // To replace by your developer credendials
         password: "OFLl[8d(Py~8" // To replace by your developer credentials
     },
@@ -48,7 +57,7 @@ let options = {
         appID: "b6f834105aed11eabf7e77d14e87b936",
         appSecret: "LzUG5l0iM9YproZTONXSkwnRmeAl7cEWrxSyg3ziSHlPpOVGVA8YY5lC2R6B0IwT"
     },
-
+ */
     // Logs options
     logs: {
         enableConsoleLogs: true,
@@ -134,7 +143,7 @@ rainbowSDK.start().then(() => {
         res.sendFile(path.join(__dirname + "/public/chat.js"));
     })
 
-    app.post('/checkQueue', function(req, res){
+    app.post('/checkQueue', async function(req, res){
         var cat = req.body.problem;
         var catArray = cat.split(',');
         console.log("category: "+cat);
@@ -143,19 +152,11 @@ rainbowSDK.start().then(() => {
         console.log("Checking Queue for category: "+category+"   skill: "+skill);
 
         // G: check the queue for category
-        var time = db.check_for_space(category);
+        var time = await db.check_for_space(category);
         console.log(time+ " right before checking");
-        // if no space = time = 'Long'
-        // if got space = time = 'Ok'
+        // if no space , time = 'Long'
+        // if got space , time = 'Ok'
 
-        // FOR TESTING ------------------------------------ 
-        // if(category == 'iphone' && skill == 'login'){
-        //     // no space
-        //     time = 'Long';
-        // }else{
-        //     time = 'Ok';
-        // }
-        // FOR TESTING ------------------------------------
         if(time == "Invalid"){
             console.log("Invalid Category "+ category);
         }
@@ -173,34 +174,10 @@ rainbowSDK.start().then(() => {
         res.end();
     });
 
-    app.post('/checkQueue', function(req, res){
-        var cat = req.body.problem;
-        var catArray = cat.split(',');
-        console.log("category: "+cat);
-        var category = catArray[0];
-        var skill = catArray[1];
-        console.log("Checking Queue for category: "+category+"   skill: "+skill);
-
-        // G: check the queue for category
-        // if no space = time = 'Long'
-        // if got space = time = 'Ok'
-        var time;
-        // FOR TESTING ------------------------------------ iphone,battery_issues
-        if(category == 'iphone' && skill == 'battery_issues'){
-            // no space
-            time = 'Long';
-        }else{
-            time = 'Ok';
-        }
-        // FOR TESTING ------------------------------------
-        var dataToSend = {'time':time}
-        res.end(JSON.stringify(dataToSend));
-    });
-
     app.post('/guestLogin', async function(req, res){
         var cat = req.body.cat;
         var catArray = cat.split(',');
-        console.log("category: "+cat);
+        console.log("guestLogin> category: "+cat);
         var category = catArray[0];    //'iphone' or 'macbook'
         var skill = catArray[1];       //crash, network, battery or screen, booting, update 
         console.log("category: "+category+"   skill: "+skill);
@@ -233,11 +210,11 @@ rainbowSDK.start().then(() => {
             logger.log("debug", "guest user invite failed");
         });
         //adding the created bubble to the appropriate agent queues in db
-        db.add_to_queue(bubbleId,category,skill);
+        db.add_to_queue(bubbleId, category, skill);
 
         // Add agent into bubble
         // Test function only
-        var agent_id = await rainbowSDK.contacts.getContactById("5e60e5ddd8084c29e64eba90");
+        /* var agent_id = await rainbowSDK.contacts.getContactById("5e60e5ddd8084c29e64eba90");
         rainbowSDK.bubbles.inviteContactToBubble(agent_id, bubble, false, false, "").then(function(bubbleUpdated) {
             logger.log("debug", "agent added into bubble");                
         }).catch(function(err) {
@@ -246,26 +223,27 @@ rainbowSDK.start().then(() => {
         });
     
        
-
+ */
         var loginCred = {"Username": guestaccount.loginEmail, "Password": guestaccount.password, "BubbleId": bubbleId};
         // G: using the category AND SKILL: ADD bubbleId into respective queue FOR agents in that category and HAS THAT SKILL. 
         // and add bubbleId to category queue
-
+        
         // DONE: all this should do is 1. add bubble with respective skill into db 
         // 2. create guest account
         // 3. add guest into bubble and guest stays in bubble and WAIT
         // (the adding of agent into bubble should be done by the matching function)
         // returns the credentials for guest user account
          // TEST function ONLY
-        var agent_id = await rainbowSDK.contacts.getContactById("5e60e5ddd8084c29e64eba90");
+        var agent_id = await rainbowSDK.contacts.getContactById("5e8e319f35c8367f99b9f475");
         rainbowSDK.bubbles.inviteContactToBubble(agent_id, bubble, false, false, "").then(function(bubbleUpdated) {
-            logger.log("debug", "agent added into bubble");                
+            logger.log("debug", "agent added into bubble");  
+            db.add_engagement("5e8e319f35c8367f99b9f475",bubbleId);              
         }).catch(function(err) {
             // do something if the invitation failed (eg. bad reference to a buble)
             logger.log("debug", "agent user invite failed");
         });
 
-
+        
         res.end(JSON.stringify(loginCred));
         
     });
