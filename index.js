@@ -234,14 +234,14 @@ rainbowSDK.start().then(() => {
         // (the adding of agent into bubble should be done by the matching function)
         // returns the credentials for guest user account
          // TEST function ONLY
-        var agent_id = await rainbowSDK.contacts.getContactById("5e8e319f35c8367f99b9f475");
+       /*  var agent_id = await rainbowSDK.contacts.getContactById("5e8e319f35c8367f99b9f475");
         rainbowSDK.bubbles.inviteContactToBubble(agent_id, bubble, false, false, "").then(function(bubbleUpdated) {
             logger.log("debug", "agent added into bubble");  
             db.add_engagement("5e8e319f35c8367f99b9f475",bubbleId);              
         }).catch(function(err) {
             // do something if the invitation failed (eg. bad reference to a buble)
             logger.log("debug", "agent user invite failed");
-        });
+        }); */
 
         
         res.end(JSON.stringify(loginCred));
@@ -280,13 +280,25 @@ rainbowSDK.start().then(() => {
 	
     matchAgentWhenAvailable(wait10seconds);
 
-    function matchAgentWhenAvailable(callback){
+    async function matchAgentWhenAvailable(callback){
         console.log("checking db to see if agent is available and needs to be matched");
         //  GAURI: call your db function here
         var result_array = await db.notengaged_agents();   
         if(result_array!= null){
             for(i=0; i<result_array.length; i += 3){
                 db.add_engagement(result_array[i],result_array[i+1],result_array[i+2]);
+                var agent_id = await rainbowSDK.contacts.getContactById(result_array[i]);
+                rainbowSDK.bubbles.getBubbleById(result_array[i+1]).then(function(bubbleUpdated) {
+                    rainbowSDK.bubbles.inviteContactToBubble(agent_id, bubbleUpdated, false, false, "").then(function(bubbleUpdated2) {
+                        logger.log("debug", "agent added into bubble");  
+                    }).catch(function(err) {
+                        // do something if the invitation failed (eg. bad reference to a buble)
+                        logger.log("debug", "agent addition to bubble failed");
+                    });
+                }).catch(function(err) {
+                    // do something if the invitation failed (eg. bad reference to a buble)
+                    logger.log("debug", "get bubble by id failed");
+                });
             }
         }  
         callback();
