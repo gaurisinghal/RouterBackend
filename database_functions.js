@@ -2,23 +2,28 @@ const {pool, mysql, con} = require('./database_config');
 const util = require('util');
 const query = util.promisify(con.query).bind(con);
 
-module.exports.check_for_space = async function check_for_space(category){
+module.exports.check_for_space = async function check_for_space(category, skill){
     let time = "Invalid";
-    let query_text = "SELECT COUNT(*) as total from ??";
+    //let query_text = "SELECT COUNT(*) as total from ??";
+    let query_text = "SELECT MIN(QueueLength) as minimum from ?? WHERE ?? =1 AND Available = 1"
     if(category == "iphone"){
         try{
-            const num_requests = await query(mysql.format(query_text,["iphone_request_buffer"]));
-            const num_available_agents = await query("SELECT COUNT(*) AS total from agents_iphone WHERE Available =1");
-            if (num_requests[0].total< num_available_agents[0].total*3){ time = "Ok"; }
+            //const num_requests = await query(mysql.format(query_text,["iphone_request_buffer"]));
+            //const num_available_agents = await query("SELECT COUNT(*) AS total from agents_iphone WHERE Available =1");
+            const queue_length = await query(mysql.format(query_text,["agents_iphone", skill]));
+            //if (num_requests[0].total< num_available_agents[0].total*3){ time = "Ok"; }
+            if(queue_length.length != 0 && queue_length[0].minimum <5){time = "Ok";}
             else { time = "Long";}
         }catch (err){
             console.log(err);
         }
     } else if(category == "macbook"){
         try{
-            const num_requests = await query(mysql.format(query_text,["mac_request_buffer"]));
-            const num_available_agents = await query("SELECT COUNT(*) AS total from agents_mac WHERE Available =1");
-            if (num_requests[0].total< num_available_agents[0].total*3){ time = "Ok"; }
+            //const num_requests = await query(mysql.format(query_text,["mac_request_buffer"]));
+            //const num_available_agents = await query("SELECT COUNT(*) AS total from agents_mac WHERE Available =1");
+            const queue_length = await query(mysql.format(query_text,["agents_mac", skill]));
+            //if (num_requests[0].total< num_available_agents[0].total*3){ time = "Ok"; }
+            if(queue_length.length != 0 && queue_length[0].minimum <5){time = "Ok";}
             else {time = "Long";}
         }catch (err){
             console.log(err);
@@ -67,37 +72,47 @@ module.exports.add_to_queue = function add_to_queue(custId, category, skill){
 
 }
 
-module.exports.delete_from_queue = function delete_from_queue(custId, category_queues){
+module.exports.delete_from_queue = async function delete_from_queue(custId, category_queues){
     //category should be either "iphone_queues" or "mac_queues" so that code is cleaner and more flexible and extendable
     //select agentids and queue position of customer id input
     //for all these agent ids move the queue up for the items behind the given customer id ie where position> position of input 
     //after moving them up, delete the entries with custid
+    //delete the corresponding entry from request buffer as well
     let selectQuery = 'SELECT AgentId, position FROM ?? WHERE CustomerId = ?';
     selectQuery = mysql.format(selectQuery, [category_queues, custId]);
-    
-    pool.query(selectQuery, (err,result)=>{
-        if (err) console.log(err);
-        else{
-            for(i=0;i<result.length;i++){
-                let id = String(result[i].AgentId);
-                let pos = String(result[i].position);
+    try{
+        result = await query(selectQuery);
+        for(i=0;i<result.length;i++){
+            let id = String(result[i].AgentId);
+            let pos = String(result[i].position);
 
-                let updateQuery = 'UPDATE ?? SET position = position-1 WHERE AgentId = ? AND position > ?';
-                updateQuery = mysql.format(updateQuery,[category_queues, id, pos]);
-                
-                pool.query(updateQuery, (err,result)=>{
-                    if(err) console.log(err);
-                    else console.log("rows affected: " + result.affectedRows);
-                });
-            }
+            let updateQuery = 'UPDATE ?? SET position = position-1 WHERE AgentId = ? AND position > ?';
+            updateQuery = mysql.format(updateQuery,[category_queues, id, pos]);
+            
+            try{
+                result1 = await query(updateQuery);
+                console.log("rows affected: " + result1.affectedRows);
+            } catch(err){ console.log(err);}
         }
-    });
+    }catch(err){console.log(err);}
+
     let deleteQuery = 'DELETE FROM ?? WHERE CustomerId = ?';
     deleteQuery = mysql.format(deleteQuery,[category_queues, custId]);
     pool.query(deleteQuery,(err,result) =>{
         if (err) console.log(err);
         else console.log("rows deleted: " + result.affectedRows);
     });
+    let deleteQuery1 = "DELETE FROM ?? WHERE custId = ?";
+    if(category_queues == "iphone_queues"){
+        deleteQuery1 = mysql.format(deleteQuery1,["iphone_request_buffer",custId]);
+    }
+    else if(category_queues == "mac_queues"){
+        deleteQuery1 = mysql.format(deleteQuery1,["mac_request_buffer",custId]);
+    }
+    pool.query(deleteQuery1, (err,res)=>{
+        if(err) console.log(err);
+        else console.log("buffer updated");
+    })
 }
 
 module.exports.toggle_availability = function toggle_availability(changeTo, agentId, agents_category){
@@ -183,13 +198,11 @@ module.exports.notengaged_agents = async function notengaged_agents(){
             try{
                 const res1 = await query("SELECT AgentId FROM agents_iphone WHERE Engaged =0 AND QueueLength !=0");
                 if(res1.length != 0){
-                    if(result ==null){result=[];}
+                    if(result == null){result=[];}
                     for(i = 0; i< res1.length; i++){
                         try{
                             let selectQuery ="SELECT CustomerId FROM iphone_queues WHERE AgentId = ? AND Position = 0";
-                            console.log(res1[i]);
                             const res2 = await query(mysql.format(selectQuery,[res1[i].AgentId]));
-                            console.log(res2);
                             result.push(res1[i].AgentId);
                             result.push(res2[0].CustomerId);
                             result.push("agents_iphone");
@@ -232,4 +245,4 @@ module.exports.notengaged_agents = async function notengaged_agents(){
 //add_to_queue('cust4','skill1');
 //add_to_queue('cust1', 'skill2');
 //add_to_queue('cust2', 'skill3');
-module.exports.notengaged_agents();
+//module.exports.notengaged_agents();
