@@ -3,21 +3,22 @@ const util = require('util');
 const query = util.promisify(con.query).bind(con);
 
 module.exports.check_for_space = async function check_for_space(category){
-    var time = "Invalid";
+    let time = "Invalid";
     let query_text = "SELECT COUNT(*) as total from ??";
     if(category == "iphone"){
         try{
-            const result = await query(mysql.format(query_text,["iphone_request_buffer"]));
-            console.log(result);
-            if (result[0].total < 10){ time = "Ok"; }
+            const num_requests = await query(mysql.format(query_text,["iphone_request_buffer"]));
+            const num_available_agents = await query("SELECT COUNT(*) AS total from agents_iphone WHERE Available =1");
+            if (num_requests[0].total< num_available_agents[0].total*3){ time = "Ok"; }
             else { time = "Long";}
         }catch (err){
             console.log(err);
         }
     } else if(category == "macbook"){
         try{
-            const result = await query(mysql.format(query_text,["mac_request_buffer"]));
-            if (result[0].total < 10){ time = "Ok";}
+            const num_requests = await query(mysql.format(query_text,["mac_request_buffer"]));
+            const num_available_agents = await query("SELECT COUNT(*) AS total from agents_mac WHERE Available =1");
+            if (num_requests[0].total< num_available_agents[0].total*3){ time = "Ok"; }
             else {time = "Long";}
         }catch (err){
             console.log(err);
@@ -150,34 +151,85 @@ module.exports.add_engagement = function add_engagement(agentId, bubbleId, agent
     });
 }
 
-module.exports.remove_engagement = function remove_engagement(bubbleId){
+module.exports.remove_engagement = async function remove_engagement(bubbleId){
     //functions changes engaged as well as removes the bubble id from the database
     //the agent bubble id will reflect NULL even if the agent is still in that bubble
-    console.log("called");
     let query_text = mysql.format("SELECT Agents_category from engagement_tracker WHERE agent_bubbleid = ?", [bubbleId]);
-    pool.query(query_text, (err, res)=>{
-        if (err) console.log(err);
-        else{
-            let selectQuery = mysql.format('SELECT AgentId, Engaged FROM ?? WHERE agent_bubbleid = ?',[res[0].Agents_category, bubbleId]);
-            pool.query(selectQuery,(err,result) => {
-                if(err) console.log(err);
-                else{
-                    let updateQuery = "UPDATE ?? SET Engaged = 0 agent_bubbleid = NULL WHERE AgentId = ?";
-                    if(result[0].Engaged ==1){
-                        updateQuery = mysql.format(updateQuery, [res[0].Agents_category, result[0].AgentId]);
-                        pool.query(updateQuery, (err,result1)=>{
-                            if(err) console.log(err);
-                            else console.log("Agent status updated to not engaged and removed from bubble"+bubbleId);
-                        });
-                    } 
+    try{
+        const res = await query(query_text);
+        let selectQuery = mysql.format('SELECT AgentId, Engaged FROM ?? WHERE agent_bubbleid = ?',[res[0].Agents_category, bubbleId]);
+        try{
+            const res1 = await query(selectQuery);
+            let updateQuery = "UPDATE ?? SET Engaged = 0, agent_bubbleid = NULL WHERE AgentId = ?";
+            if(res1[0].Engaged ==1){
+                updateQuery = mysql.format(updateQuery, [res[0].Agents_category, res1[0].AgentId]);
+                try{
+                    const res2 = await query(updateQuery);
+                    console.log("Agent status updated to not engaged and removed from bubble "+bubbleId);
+                } catch(err) {console.log(err);}
+            } 
+        } catch(err){console.log(err);}
+    } catch(err){console.log(err);}
+}
+
+module.exports.notengaged_agents = async function notengaged_agents(){
+    //check if the request buffer is not empty. if not empty:
+    //check the table of that category for not engaged agents. if none, return null
+    //if engaged =1, return that agentId from that table and bubbleId of position=0 from the respective queues table
+   let result = null;
+   try{
+        const res = await query("SELECT COUNT(*) AS total FROM `iphone_request_buffer`");
+        if(res[0].total !=0){
+            try{
+                const res1 = await query("SELECT AgentId FROM agents_iphone WHERE Engaged =0 AND QueueLength !=0");
+                if(res1.length != 0){
+                    if(result ==null){result=[];}
+                    for(i = 0; i< res1.length; i++){
+                        try{
+                            let selectQuery ="SELECT CustomerId FROM iphone_queues WHERE AgentId = ? AND Position = 0";
+                            console.log(res1[i]);
+                            const res2 = await query(mysql.format(selectQuery,[res1[i].AgentId]));
+                            console.log(res2);
+                            result.push(res1[i].AgentId);
+                            result.push(res2[0].CustomerId);
+                            result.push("agents_iphone");
+                            this.delete_from_queue(res2[0].CustomerId, "iphone_queues");
+                        } catch(err){ console.log(err);}
+                    }
                 }
-            });
+            } catch(err){ console.log(err);}
         }
-    });
+    } catch(err){ console.log(err);}
+    
+    try{
+        const res = await query("SELECT COUNT(*) AS total FROM `mac_request_buffer`");
+        if(res[0].total !=0){
+            try{
+                const res1 = await query("SELECT AgentId FROM agents_mac where Engaged =0");
+                if(res1.length != 0){
+                    if(result == null){ result = [];}
+                    for(i = 0; i< res1.length; i++){
+                        try{
+                            let selectQuery ="SELECT CustomerId FROM mac_queues WHERE AgentId = ? AND Position = 0";
+                            const res2 = await query(mysql.format(selectQuery,[res1[i].AgentId]));
+                            result.push(res1[i].AgentId);
+                            result.push(res2[0].CustomerId);
+                            result.push("agents_mac");
+                            this.delete_from_queue(res2[0].CustomerId, "mac_queues");
+                        } catch(err){ console.log(err);}
+                    }
+                }
+            } catch(err){ console.log(err);}
+        }
+    } catch(err){ console.log(err);}
+
+
+    console.log(result);
+    return result;
 }
 
 //toggle_availability("offline", "101fgh");
 //add_to_queue('cust4','skill1');
 //add_to_queue('cust1', 'skill2');
 //add_to_queue('cust2', 'skill3');
-//module.exports.check_for_space("iphone");
+module.exports.notengaged_agents();

@@ -283,6 +283,12 @@ rainbowSDK.start().then(() => {
     function matchAgentWhenAvailable(callback){
         console.log("checking db to see if agent is available and needs to be matched");
         //  GAURI: call your db function here
+        var result_array = await db.notengaged_agents();   
+        if(result_array!= null){
+            for(i=0; i<result_array.length; i += 3){
+                db.add_engagement(result_array[i],result_array[i+1],result_array[i+2]);
+            }
+        }  
         callback();
     }
 
