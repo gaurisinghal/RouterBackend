@@ -277,4 +277,18 @@ rainbowSDK.start().then(() => {
     https.createServer(options, app).listen(8086, function () {
         console.log('Https server listening on port ' + 8086);
     });
+	
+    matchAgentWhenAvailable(wait10seconds);
+
+    function matchAgentWhenAvailable(callback){
+        console.log("checking db to see if agent is available and needs to be matched");
+        //  GAURI: call your db function here
+        callback();
+    }
+
+    function wait10seconds(){
+        setTimeout(function(){
+            matchAgentWhenAvailable(wait10seconds);
+        },10000);
+    }		
 });
