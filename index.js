@@ -18,6 +18,8 @@ let RainbowSDK = require("rainbow-node-sdk");
 app.use('/public', express.static('public'));
 app.use('/static', express.static('static'));
 
+var connections = {};
+
 // Define your configuration
 let options = {
 
@@ -142,6 +144,29 @@ rainbowSDK.start().then(() => {
     app.get('/chat.js', function(req, res){
         res.sendFile(path.join(__dirname + "/public/chat.js"));
     })
+
+     
+    app.post('/longPoll', function(req, res){
+        // req: problem - iphone,login, guestuserid
+        var cat = req.body.problem;
+        var catArray = cat.split(',');
+        var category = catArray[0];
+        var skill = catArray[1];
+        var guestuserid = "$"+req.body.guestuserid;
+        // stashing the res 
+        connections[guestuserid] = res;
+        console.log("added into connection var")
+        // use the guestuserid to queue in the database - category - skill
+        db.add_to_queue(guestuserid, category, skill);
+    });
+
+    app.post('/endCall', function(req, res){
+        var guestuserid = "$"+req.body.guestuserid;
+        // G set engage of the agent in the bubble from 1 to 0
+        //db.remove_engagement(guestuserid);
+        console.log("ENDED CALL");
+        res.end();
+    });
 
     app.post('/checkQueue', async function(req, res){
         var cat = req.body.problem;
@@ -286,6 +311,15 @@ rainbowSDK.start().then(() => {
         var result_array = await db.notengaged_agents();   
         if(result_array!= null){
             for(i=0; i<result_array.length; i += 3){
+                // check result_array[i]
+                // call
+                if(result_array[i+1].charAt(0)=="$"){
+                    connection.get(result_array[i+1]).end(JSON.stringify(result_array[i]));
+                    delete connection[result_array[i+1]];
+                    db.add_engagement(result_array[i],result_array[i+1],result_array[i+2]);
+                    continue;
+                }
+                // chat
                 db.add_engagement(result_array[i],result_array[i+1],result_array[i+2]);
                 var agent_id = await rainbowSDK.contacts.getContactById(result_array[i]);
                 rainbowSDK.bubbles.getBubbleById(result_array[i+1]).then(function(bubbleUpdated) {
