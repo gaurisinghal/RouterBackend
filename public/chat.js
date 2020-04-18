@@ -85,7 +85,7 @@ $(function() {
 
         // send category over and get back credentials
         var data=localStorage.getItem('category');
-        var dataTosend={"cat": data};
+        var dataTosend={"cat": data, "type":"chat"};
         var xhttp = new XMLHttpRequest();
         xhttp.open('POST', 'guestLogin', true);
         xhttp.setRequestHeader('Content-Type','application/json');

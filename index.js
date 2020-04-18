@@ -202,11 +202,11 @@ rainbowSDK.start().then(() => {
     app.post('/guestLogin', async function(req, res){
         var cat = req.body.cat;
         var catArray = cat.split(',');
-        console.log("guestLogin> category: "+cat);
         var category = catArray[0];    //'iphone' or 'macbook'
         var skill = catArray[1];       //crash, network, battery or screen, booting, update 
         console.log("category: "+category+"   skill: "+skill);
         console.log("Creation of guest account request received.");
+        var type = req.body.type;
         // Create account
         var guestaccount = await rainbowSDK.admin.createAnonymousGuestUser(7200).then( (guest) => {
             return guest;
@@ -215,27 +215,31 @@ rainbowSDK.start().then(() => {
         });
         var contact_id = await rainbowSDK.contacts.getContactById(guestaccount.id);
 
-        // Create Bubble of name support
-        let withHistory = false;
-        var bubbleId;
-        var bubble = await rainbowSDK.bubbles.createBubble("Debug", "A little description of my bubble", withHistory).then((bubble) => {
-            bubbleId = bubble.id;
-            return bubble;
-        }).catch(function(err) {
-            console.log("Error creating bubble");
-        });
-        //
-        // Add guest into bubble
-        rainbowSDK.bubbles.inviteContactToBubble(contact_id, bubble, false, false, "").then(function(bubbleUpdated) {
-            // do something with the invite sent
-            logger.log("debug", "guest user has been added to bubble");
-            logger.log("debug", "bubble jid: "+ bubbleUpdated.jid);
-        }).catch(function(err) {
-            // do something if the invitation failed (eg. bad reference to a buble)
-            logger.log("debug", "guest user invite failed");
-        });
-        //adding the created bubble to the appropriate agent queues in db
-        db.add_to_queue(bubbleId, category, skill);
+        if(type =="chat"){
+            // Create Bubble of name support
+            let withHistory = false;
+            var bubbleId;
+            var bubble = await rainbowSDK.bubbles.createBubble("Debug", "A little description of my bubble", withHistory).then((bubble) => {
+                bubbleId = bubble.id;
+                return bubble;
+            }).catch(function(err) {
+                console.log("Error creating bubble");
+            });
+            //
+            // Add guest into bubble
+            rainbowSDK.bubbles.inviteContactToBubble(contact_id, bubble, false, false, "").then(function(bubbleUpdated) {
+                // do something with the invite sent
+                logger.log("debug", "guest user has been added to bubble");
+                logger.log("debug", "bubble jid: "+ bubbleUpdated.jid);
+            }).catch(function(err) {
+                // do something if the invitation failed (eg. bad reference to a buble)
+                logger.log("debug", "guest user invite failed");
+            });
+            //adding the created bubble to the appropriate agent queues in db
+            db.add_to_queue(bubbleId, category, skill);
+        }else{  // call
+            bubbleId = null;
+        }
 
         // Add agent into bubble
         // Test function only
