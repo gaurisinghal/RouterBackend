@@ -314,7 +314,7 @@ rainbowSDK.start().then(() => {
                 // check result_array[i]
                 // call
                 if(result_array[i+1].charAt(0)=="$"){
-                    connections.get(result_array[i+1]).end(JSON.stringify(result_array[i]));
+                    connections[result_array[i+1]].end(JSON.stringify(result_array[i]));
                     delete connections[result_array[i+1]];
                     db.add_engagement(result_array[i],result_array[i+1],result_array[i+2]);
                     continue;
