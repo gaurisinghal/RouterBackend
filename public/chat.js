@@ -1,4 +1,19 @@
 $(function() {
+    function convertSpecialChars(text){
+        var specialChars = {'&':"&amp;",'<':"&lt;",'>':"&gt;",'"':"&#034;","'":"&#039;","/":"&#47;"};
+        var sanitisedText ="";
+        for (var i = 0; i < text.length; i++) {
+           var letter = text.charAt(i);
+           if(letter in specialChars){
+                sanitisedText=sanitisedText+specialChars[letter];
+                console.log(letter);
+           }else{
+               sanitisedText=sanitisedText+letter;
+           }
+        }
+        return sanitisedText;   
+    }
+
     console.log("Application started");
 
     // Update the variables below with your applicationID and applicationSecret strings
@@ -17,7 +32,8 @@ $(function() {
 
     // Button event listener
     submitButton.addEventListener("click", function(){
-        var htmldata = "<div class=\"ms-Grid-row\"><p style=\"margin-left: 20px; margin-right: 20px; margin-top:10px; padding:8px; background-color: #efefef; text-align: left;\"><i class=\"ms-Icon ms-Icon--SkypeMessage\" aria-hidden=\"true\"></i>" + input.value + "</p></div>";
+        var sanitisedText = convertSpecialChars(input.value);
+        var htmldata = "<div class=\"ms-Grid-row\"><p style=\"margin-left: 20px; margin-right: 20px; margin-top:10px; padding:8px; background-color: #efefef; text-align: left;\"><i class=\"ms-Icon ms-Icon--SkypeMessage\" aria-hidden=\"true\"></i>" + sanitisedText + "</p></div>";
         var container = document.getElementById('sentMessages');
         container.insertAdjacentHTML('beforeend', htmldata);
         var bubble = rainbowSDK.bubbles.getBubbleById(RainbowBubbleId);
@@ -117,7 +133,8 @@ $(function() {
     // Im handler
     var onNewMessageReceived = function onNewMessageReceived(event) {
         console.log("I received new message");
-        var htmldata = "<div class=\"ms-Grid-row\"><p style=\"margin-left: 20px; margin-right: 20px; margin-top:10px; padding:8px; background-color: #efefef; text-align: left;\"><i class=\"ms-Icon ms-Icon--DelveAnalyticsLogo\" aria-hidden=\"true\"></i>" + event.detail.message.data + "</p></div>";
+        var sanitisedText = convertSpecialChars(event.detail.message.data);
+        var htmldata = "<div class=\"ms-Grid-row\"><p style=\"margin-left: 20px; margin-right: 20px; margin-top:10px; padding:8px; background-color: #efefef; text-align: left;\"><i class=\"ms-Icon ms-Icon--DelveAnalyticsLogo\" aria-hidden=\"true\"></i>" + sanitisedText + "</p></div>";
         var container = document.getElementById('sentMessages');
         container.insertAdjacentHTML('beforeend', htmldata);
     }
