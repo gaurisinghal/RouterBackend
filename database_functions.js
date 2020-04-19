@@ -241,6 +241,24 @@ module.exports.notengaged_agents = async function notengaged_agents(){
     return result;
 }
 
+module.exports.get_skills = async function get_skills(category){
+    //argument value should be "iphone_agents" or "mac_agents"
+    let skills_array = [];
+    let query_text = mysql.format("SHOW COLUMNS FROM ??", [category]);
+    try{
+        res  = await query(query_text);
+        for(i=1; i< res.length - 4; i++){
+            skills_array.push(String(res[i].Field));
+        }
+        return skills_array;
+    } catch (err){
+        console.log("Incorrect input");
+        console.log(err);
+    }
+}
+
+
+//module.exports.get_skills("agents_iphone");
 //toggle_availability("offline", "101fgh");
 //add_to_queue('cust4','skill1');
 //add_to_queue('cust1', 'skill2');
