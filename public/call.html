@@ -20,7 +20,7 @@
         <script src="./rainbow-sdk.min.js"></script>
 
         <!--Link of call script-->
-        <script src="/call.js"></script>
+        <script src="/public/call.js"></script>
     </head>
     <body class="ms-Fabric" dir="ltr" style="margin: 0px;">
         <!--header-->
@@ -53,22 +53,26 @@
                     <p>
                         <label for="product">What product are you facing issues with?</label>
                         <select id="product">
-                            <option value="iConto">iConto</option>
-                            <option value="Consotosh">Consotosh</option>
-                            <option value="Contoso Phone">Contoso Phone</option>
+                            <option value="iphone">iphone</option>
+                            <option value="macbook">Macbook</option>
                         </select>
                     </p>
                     <p>
                         <label for="problem">What kind of problem are you facing?</label>
                         <select id="problem">
-                            <option value="Battery/Power">Battery/Power</option>
-                            <option value="Screen">Screen</option>
-                            <option value="Boot">Boot</option>
-                            <option value="Account">Account/Login</option>
+                            <option value="battery_issues">Iphone: Battery/Power</option>
+                            <option value="network_issues">Iphone: Network</option>
+                            <option value="crash_issues">Iphone: System Crash</option>
+                            <option value="screen_issues">Macbook: Screen</option>
+                            <option value="booting_issues">Macbook: Booting </option>
+                            <option value="update_issues">Macbook: System Update</option>
+
                         </select>
                     </p>
                     <p>
-                        <button id="submitProblem">Next</button>
+                        
+                        <button id = "callButton">Call</button>
+                        
                     </p>
                 </div>
 
@@ -100,5 +104,9 @@
          
         });
         </script>
+        <video id="minivideo" autoplay muted></video>
+        <video id="largevideo" autoplay></video>
+        <video id="globalVideoTag" autoplay style="display:none;"></video>
+        <audio id="globalAudioTag" autoplay style="display:none;"></audio>
     </body>
 </html>

@@ -178,8 +178,10 @@ module.exports.remove_engagement = async function remove_engagement(bubbleId){
             let updateQuery = "UPDATE ?? SET Engaged = 0, agent_bubbleid = NULL WHERE AgentId = ?";
             if(res1[0].Engaged ==1){
                 updateQuery = mysql.format(updateQuery, [res[0].Agents_category, res1[0].AgentId]);
+                deleteQuery = mysql.format("DELETE FROM engagement_tracker WHERE agent_bubbleid = ?",[bubbleId]);
                 try{
                     const res2 = await query(updateQuery);
+                    const res3 = await query(deleteQuery);
                     console.log("Agent status updated to not engaged and removed from bubble "+bubbleId);
                 } catch(err) {console.log(err);}
             } 

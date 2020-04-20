@@ -167,11 +167,11 @@ rainbowSDK.start().then(() => {
         res.end(JSON.stringify(dataToSend));
     });
 
-    app.post('/endCall', function(req, res){
+    app.post('/endCall', async function(req, res){
         var guestuserid = "$"+req.body.guestuserid;
         delete connections[guestuserid];
         // G set engage of the agent in the bubble from 1 to 0
-        db.remove_engagement(guestuserid);
+        await db.remove_engagement(guestuserid);
         console.log("ENDED CALL");
         res.end();
     });
@@ -185,7 +185,7 @@ rainbowSDK.start().then(() => {
         console.log("Checking Queue for category: "+category+"   skill: "+skill);
 
         // G: check the queue for category
-        var time = await db.check_for_space(category);
+        var time = await db.check_for_space(category,skill);
         console.log(time+ " right before checking");
         // if no space , time = 'Long'
         // if got space , time = 'Ok'
@@ -199,10 +199,10 @@ rainbowSDK.start().then(() => {
         }
     });
 
-    app.post('/endChat', function(req, res){
+    app.post('/endChat', async function(req, res){
         var rbwbubbleid = req.body.bubbleid;
         // G set engage of the agent in the bubble from 1 to 0
-        db.remove_engagement(rbwbubbleid);
+        await db.remove_engagement(rbwbubbleid);
         console.log("ENDED CHAT at bubbleid: "+rbwbubbleid);
         res.end();
     });
