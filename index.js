@@ -147,23 +147,31 @@ rainbowSDK.start().then(() => {
 
      
     app.post('/longPoll', function(req, res){
-        // req: problem - iphone,login, guestuserid
+        // req: {"problem" : "iphone,login", "guestuserid":"..."}
         var cat = req.body.problem;
         var catArray = cat.split(',');
         var category = catArray[0];
         var skill = catArray[1];
         var guestuserid = "$"+req.body.guestuserid;
-        // stashing the res 
-        connections[guestuserid] = res;
-        console.log("added into connection var")
-        // use the guestuserid to queue in the database - category - skill
-        db.add_to_queue(guestuserid, category, skill);
+        if(guestuserid in connections){
+            // alr sent req before
+            var agentid = connections[guestuserid];
+            var dataToSend = {'agentid':agentid};
+        }else{
+            connections[guestuserid] = null;
+            console.log("first request: guestuserid added into connections");
+            // use the guestuserid to queue in the database - category - skill
+            db.add_to_queue(guestuserid, category, skill);
+            var dataToSend = {'agentid':null};
+        }
+        res.end(JSON.stringify(dataToSend));
     });
 
     app.post('/endCall', function(req, res){
         var guestuserid = "$"+req.body.guestuserid;
+        delete connections[guestuserid];
         // G set engage of the agent in the bubble from 1 to 0
-        //db.remove_engagement(guestuserid);
+        db.remove_engagement(guestuserid);
         console.log("ENDED CALL");
         res.end();
     });
@@ -318,8 +326,10 @@ rainbowSDK.start().then(() => {
                 // check result_array[i]
                 // call
                 if(result_array[i+1].charAt(0)=="$"){
-                    connections[result_array[i+1]].end(JSON.stringify(result_array[i]));
-                    delete connections[result_array[i+1]];
+                    //connections[result_array[i+1]].end(JSON.stringify(result_array[i]));
+                    //delete connections[result_array[i+1]];
+                    // set the value of that guestuserid key to be the agentid
+                    connections[result_array[i+1]]=result_array[i];
                     db.add_engagement(result_array[i],result_array[i+1],result_array[i+2]);
                     continue;
                 }
