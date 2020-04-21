@@ -33,28 +33,29 @@ module.exports.check_for_space = async function check_for_space(category, skill)
     return String(time);
 }
 
-module.exports.add_to_queue = function add_to_queue(custId, category, skill){
+module.exports.add_to_queue = async function add_to_queue(custId, category, skill){
     //select agentid, qlength from agents_iphone/agents_mac where skill =1 
     //insert into iphone_queues/mac_queues (agentid, position, custid) values(slected_agentid, qlength, custid)
     //select returns an array containing each row as an object
     let selectQuery = 'SELECT AgentId, QueueLength from ?? where ?? =1';
     if(category == 'iphone'){
         selectQuery = mysql.format(selectQuery,["agents_iphone", skill]);
-        pool.query(mysql.format("INSERT INTO iphone_request_buffer VALUES (?)",[custId]),(err, res)=>{
-            if(err) console.log(err);
-        });
+       // pool.query(mysql.format("INSERT INTO iphone_request_buffer VALUES (?)",[custId]),(err, res)=>{
+        //    if(err) console.log(err);
+      //  });
     }
     else if(category == 'macbook'){
         selectQuery = mysql.format(selectQuery,["agents_mac", skill]);
-        pool.query(mysql.format("INSERT INTO mac_request_buffer VALUES (?)",[custId]),(err, res)=>{
-            if(err) console.log(err);
-        });
+       // pool.query(mysql.format("INSERT INTO mac_request_buffer VALUES (?)",[custId]),(err, res)=>{
+       //     if(err) console.log(err);
+       // });
     }
     // else if(category == "ipad"){
     //     selectQuery = mysql.format(selectQuery,["agents_ipad",skill]);
     // }
-    pool.query(selectQuery, (err, result)=>{
-        if (err) console.log(err);
+
+    try{
+        result = await query(selectQuery);
         for ( i=0; i<result.length; i++){
             let id = String(result[i].AgentId);
             let pos = String(result[i].QueueLength);
@@ -63,12 +64,16 @@ module.exports.add_to_queue = function add_to_queue(custId, category, skill){
             if(category== "iphone"){ insertQuery = mysql.format(insertQuery,["iphone_queues", id,pos,custId]);}
             else if (category == "macbook"){ insertQuery = mysql.format(insertQuery,["mac_queues", id,pos,custId]);}
 
-            pool.query(insertQuery,(err,result)=>{
-                if (err) console.log(err);
-                else console.log("Inserted into "+ category+" queue");
-            });
+            try{
+                result1 = await query(insertQuery);
+                console.log("Inserted into "+ category+" queue");
+            } catch (err){
+                console.log(err);
+            }
         }
-    }); 
+    } catch (err){
+        console.log(err);
+    }
 
 }
 
@@ -102,7 +107,7 @@ module.exports.delete_from_queue = async function delete_from_queue(custId, cate
         if (err) console.log(err);
         else console.log("rows deleted: " + result.affectedRows);
     });
-    let deleteQuery1 = "DELETE FROM ?? WHERE custId = ?";
+    /* let deleteQuery1 = "DELETE FROM ?? WHERE custId = ?";
     if(category_queues == "iphone_queues"){
         deleteQuery1 = mysql.format(deleteQuery1,["iphone_request_buffer",custId]);
     }
@@ -112,7 +117,7 @@ module.exports.delete_from_queue = async function delete_from_queue(custId, cate
     pool.query(deleteQuery1, (err,res)=>{
         if(err) console.log(err);
         else console.log("buffer updated");
-    })
+    }) */
 }
 
 module.exports.toggle_availability = function toggle_availability(changeTo, agentId, agents_category){

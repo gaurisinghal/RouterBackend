@@ -168,7 +168,7 @@ rainbowSDK.start().then(() => {
     });
 
     app.post('/endCall', async function(req, res){
-        var guestuserid = "$"+req.body.guestuserid;
+        var guestuserid = "$" + req.body.guestuserid;
         delete connections[guestuserid];
         // G set engage of the agent in the bubble from 1 to 0
         await db.remove_engagement(guestuserid);
@@ -244,7 +244,7 @@ rainbowSDK.start().then(() => {
                 logger.log("debug", "guest user invite failed");
             });
             //adding the created bubble to the appropriate agent queues in db
-            db.add_to_queue(bubbleId, category, skill);
+            await db.add_to_queue(bubbleId, category, skill);
         }else{  // call
             bubbleId = null;
         }

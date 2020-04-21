@@ -11,6 +11,7 @@ $(function() {
     //var submitProblemButton = document.getElementById('submitProblem');
     var status = document.getElementById('status');
     var callButton = document.getElementById('callButton');
+    var endCallButton = document.getElementById('endCall');
     //var endCall = document.getElementById('endCall');
     var call, userId;
 
@@ -179,17 +180,19 @@ $(function() {
 
             console.log("finish");
 
-            /*endCall.addEventListener("click", function(){
-                rainbowSDK.webRTC.release(call);
+            // Please do finish this part
+            endCallButton.addEventListener("click",  function(){
                 console.log("endcall button pressed");
                 var endData = {"guestuserid" : userId};
                 console.log(endData);
+                rainbowSDK.webRTC.release(call);
                 var xhttp = new XMLHttpRequest();
                 xhttp.open('POST', 'endCall', true);
                 xhttp.setRequestHeader('Content-Type','application/json');
                 xhttp.send(JSON.stringify(endData));
                 console.log("end data sent");
-                });*/
+                window.location.replace('/');
+                });
             
         });
     
