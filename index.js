@@ -314,7 +314,30 @@ rainbowSDK.start().then(() => {
     https.createServer(options, app).listen(8086, function () {
         console.log('Https server listening on port ' + 8086);
     });
-	
+    
+    rainbowSDK.events.on("rainbow_onmessagereceived", async (message) => {
+        // Check if the message is not from you
+        if(!message.fromJid.includes(rainbowSDK.connectedUser.jid_im)) {
+            // Check that the message is from a user and not a bot
+            if( message.type === "chat") {
+                // Answer to this user
+                rainbowSDK.im.sendMessageToJid("hello! status updated!", message.fromJid);
+                var contact_id = await rainbowSDK.contacts.getContactByJid(message.fromJid);
+                if(message.content == "offline"){
+                    db.toggle_availability(message.content, contact_id);
+                    // match with agents contact using contact_id and change the availability to 0
+                    rainbowSDK.im.sendMessageToJid("You are now OFFLINE", message.fromJid);
+                }
+                else if(message.content == "online"){
+                    db.toggle_availability(message.content, contact_id);
+                    // match with agents contact using contact_id and change the availability to 1
+                    rainbowSDK.im.sendMessageToJid("You are now ONLINE", message.fromJid);
+                }
+            }
+        }
+    });
+
+
     matchAgentWhenAvailable(wait10seconds);
 
     async function matchAgentWhenAvailable(callback){
