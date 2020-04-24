@@ -11,8 +11,9 @@ module.exports.check_for_space = async function check_for_space(category, skill)
             //const num_requests = await query(mysql.format(query_text,["iphone_request_buffer"]));
             //const num_available_agents = await query("SELECT COUNT(*) AS total from agents_iphone WHERE Available =1");
             const queue_length = await query(mysql.format(query_text,["agents_iphone", skill]));
+            console.log(queue_length.length);
             //if (num_requests[0].total< num_available_agents[0].total*3){ time = "Ok"; }
-            if(queue_length.length != 0 && queue_length[0].minimum <5){time = "Ok";}
+            if(queue_length.length != 0 && queue_length[0].minimum <3){time = "Ok";}
             else { time = "Long";}
         }catch (err){
             console.log(err);
@@ -130,14 +131,14 @@ module.exports.toggle_availability = function toggle_availability(changeTo, agen
         else{
             let updateQuery = "UPDATE ?? SET Available = ? WHERE AgentId = ?";
             if(result[0].Available ==0 && changeTo == "online"){
-                updateQuery = mysql.format(updateQuery, [agents_category, 1, agentid]);
+                updateQuery = mysql.format(updateQuery, [agents_category, 1, agentId]);
                 pool.query(updateQuery, (err,result)=>{
                     if(err) console.log(err);
                     else console.log("Iphone agent availability updated to" + changeTo);
                 });
             } 
             else if(result[0].Available == 1 && changeTo == "offline"){
-                updateQuery = mysql.format(updateQuery, [agents_category, 0, agentid]);
+                updateQuery = mysql.format(updateQuery, [agents_category, 0, agentId]);
                 pool.query(updateQuery, (err,result)=>{
                     if(err) console.log(err);
                     else console.log("Mac agent availablility updated to" + changeTo);

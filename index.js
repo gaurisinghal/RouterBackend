@@ -145,7 +145,10 @@ rainbowSDK.start().then(() => {
         res.sendFile(path.join(__dirname + "/public/chat.js"));
     })
 
-     
+    app.get('/index.html',function(req,res){
+        res.sendFile(path.join(__dirname+ "/public/index.html"));
+    });
+
     app.post('/longPoll', function(req, res){
         // req: {"problem" : "iphone,login", "guestuserid":"..."}
         var cat = req.body.problem;
@@ -324,12 +327,12 @@ rainbowSDK.start().then(() => {
                 rainbowSDK.im.sendMessageToJid("hello! status updated!", message.fromJid);
                 var contact_id = await rainbowSDK.contacts.getContactByJid(message.fromJid);
                 if(message.content == "offline"){
-                    db.toggle_availability(message.content, contact_id);
+                    db.toggle_availability(message.content, contact_id.id);
                     // match with agents contact using contact_id and change the availability to 0
                     rainbowSDK.im.sendMessageToJid("You are now OFFLINE", message.fromJid);
                 }
                 else if(message.content == "online"){
-                    db.toggle_availability(message.content, contact_id);
+                    db.toggle_availability(message.content, contact_id.id, "agents_iphone");
                     // match with agents contact using contact_id and change the availability to 1
                     rainbowSDK.im.sendMessageToJid("You are now ONLINE", message.fromJid);
                 }

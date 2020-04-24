@@ -103,7 +103,7 @@ $(function() {
                 // Sign in to rainbow
                 rainbowSDK.connection.signin(RainbowUsername, RainbowPassword)
                                .then(function(object) {
-                                status.innerHTML = 'Agent connected';
+                                status.innerHTML = '    Connected to Rainbow, waiting for Agent';
                                     console.log("User login successful", object);
                                 })
                                 .catch(function(err) {
@@ -132,6 +132,7 @@ $(function() {
 
     // Im handler
     var onNewMessageReceived = function onNewMessageReceived(event) {
+        status.innerHTML = "      Agent connected "
         console.log("I received new message");
         var sanitisedText = convertSpecialChars(event.detail.message.data);
         var htmldata = "<div class=\"ms-Grid-row\"><p style=\"margin-left: 20px; margin-right: 20px; margin-top:10px; padding:8px; background-color: #efefef; text-align: left;\"><i class=\"ms-Icon ms-Icon--DelveAnalyticsLogo\" aria-hidden=\"true\"></i>" + sanitisedText + "</p></div>";
