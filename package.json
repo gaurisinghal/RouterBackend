@@ -21,7 +21,7 @@
     "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
     "express": "^4.17.1",
-    "mocha": "^7.1.1",
+    "mocha": "^10.2.0",
     "mysql": "^2.18.1",
     "rainbow-node-sdk": "^1.65.2",
     "rainbow-web-sdk": "^1.68.0",
